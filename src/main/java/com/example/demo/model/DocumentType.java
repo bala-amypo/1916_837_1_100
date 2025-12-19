@@ -1,12 +1,14 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import lombok.*;
 
 @Entity
-@Table(name = "document_types")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class DocumentType {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -17,22 +19,5 @@ public class DocumentType {
     private String description;
     private Boolean required;
     private Integer weight;
-
-    private LocalDateTime createdAt;
-
-    @PrePersist
-    public void onCreate() {
-        createdAt = LocalDateTime.now();
-    }
-
-    public DocumentType() {}
-
-    public DocumentType(String typeName, String description, Boolean required, Integer weight) {
-        this.typeName = typeName;
-        this.description = description;
-        this.required = required;
-        this.weight = weight;
-    }
-
-    // getters/setters
+    private String createdAt;
 }
