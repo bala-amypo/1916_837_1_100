@@ -1,27 +1,19 @@
-package com.example.demo.model;
-
-import jakarta.persistence.*;
-import lombok.*;
-
-@Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Table(name = "users")
 public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String fullName;
-
-    @Column(unique = true)
     private String email;
-
     private String password;
-
     private String role;
 
-    private String createdAt;
+    // 4-parameter constructor for AuthController
+    public User(String fullName, String email, String password, String role) {
+        this.fullName = fullName;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+    }
 }

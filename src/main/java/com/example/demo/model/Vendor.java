@@ -1,25 +1,20 @@
-package com.example.demo.model;
-
-import jakarta.persistence.*;
-import lombok.*;
-
-@Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Table(name = "vendor")
 public class Vendor {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(unique = true)
     private String vendorName;
-
     private String email;
     private String phone;
     private String industry;
+    private String address;
 
-    private String createdAt;
+    // 4-parameter constructor for VendorController
+    public Vendor(String vendorName, String email, String phone, String industry) {
+        this.vendorName = vendorName;
+        this.email = email;
+        this.phone = phone;
+        this.industry = industry;
+    }
 }
