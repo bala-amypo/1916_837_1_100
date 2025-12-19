@@ -1,12 +1,15 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
+import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "compliance_scores")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ComplianceScore {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -17,8 +20,4 @@ public class ComplianceScore {
     private Double scoreValue;
     private LocalDateTime lastEvaluated;
     private String rating;
-
-    public ComplianceScore() {}
-
-    // getters/setters
 }
