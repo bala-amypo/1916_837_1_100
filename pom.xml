@@ -25,7 +25,6 @@
     </properties>
 
     <dependencies>
-
         <!-- Spring Boot Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -107,14 +106,12 @@
 
     <build>
         <plugins>
-
             <!-- Spring Boot Plugin -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>3.2.2</version>
             </plugin>
-
         </plugins>
     </build>
 
