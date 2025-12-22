@@ -20,12 +20,38 @@ public class ComplianceRule {
 
     private LocalDateTime createdAt;
 
-    @PrePersist
-    public void onCreate() {
-        createdAt = LocalDateTime.now();
+    public ComplianceRule() {
     }
 
-    public ComplianceRule() {}
+    public ComplianceRule(String ruleName, String ruleDescription, String matchType, Double threshold) {
+        this.ruleName = ruleName;
+        this.ruleDescription = ruleDescription;
+        this.matchType = matchType;
+        this.threshold = threshold;
+    }
 
-    // getters/setters
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setRuleName(String ruleName) {
+        this.ruleName = ruleName;
+    }
+
+    public void setMatchType(String matchType) {
+        this.matchType = matchType;
+    }
+
+    public Double getThreshold() {
+        return threshold;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
 }

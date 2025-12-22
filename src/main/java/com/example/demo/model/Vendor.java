@@ -1,33 +1,71 @@
 package com.example.demo.model;
 
-import lombok.*;
-
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "vendors")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class Vendor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     private String vendorName;
+
     private String email;
     private String phone;
     private String industry;
-    private String address;
-    private String contactPerson;
 
-    // Needed for VendorController
+    private LocalDateTime createdAt;
+
+    @ManyToMany
+    @JoinTable(
+            name = "vendor_document_types",
+            joinColumns = @JoinColumn(name = "vendor_id"),
+            inverseJoinColumns = @JoinColumn(name = "document_type_id")
+    )
+    private Set<DocumentType> supportedDocumentTypes = new HashSet<>();
+
+    public Vendor() {
+    }
+
     public Vendor(String vendorName, String email, String phone, String industry) {
         this.vendorName = vendorName;
         this.email = email;
         this.phone = phone;
         this.industry = industry;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getVendorName() {
+        return vendorName;
+    }
+
+    public void setVendorName(String vendorName) {
+        this.vendorName = vendorName;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public Set<DocumentType> getSupportedDocumentTypes() {
+        return supportedDocumentTypes;
+    }
+
+    public void setSupportedDocumentTypes(Set<DocumentType> supportedDocumentTypes) {
+        this.supportedDocumentTypes = supportedDocumentTypes;
     }
 }
