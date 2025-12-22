@@ -1,12 +1,10 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.exception.ResourceNotFoundException;
-import com.example.demo.exception.ValidationException;
 import com.example.demo.model.ComplianceScore;
 import com.example.demo.model.Vendor;
 import com.example.demo.model.VendorDocument;
 import com.example.demo.repository.ComplianceScoreRepository;
-import com.example.demo.repository.DocumentTypeRepository;
 import com.example.demo.repository.VendorDocumentRepository;
 import com.example.demo.repository.VendorRepository;
 import com.example.demo.service.ComplianceScoreService;
@@ -19,19 +17,15 @@ import java.util.List;
 public class ComplianceScoreServiceImpl implements ComplianceScoreService {
 
     private final VendorRepository vendorRepository;
-    private final DocumentTypeRepository documentTypeRepository; // required by test
     private final VendorDocumentRepository vendorDocumentRepository;
     private final ComplianceScoreRepository complianceScoreRepository;
 
-    // ✅ EXACT constructor expected by test
     public ComplianceScoreServiceImpl(
             VendorRepository vendorRepository,
-            DocumentTypeRepository documentTypeRepository,
             VendorDocumentRepository vendorDocumentRepository,
             ComplianceScoreRepository complianceScoreRepository
     ) {
         this.vendorRepository = vendorRepository;
-        this.documentTypeRepository = documentTypeRepository;
         this.vendorDocumentRepository = vendorDocumentRepository;
         this.complianceScoreRepository = complianceScoreRepository;
     }
@@ -43,55 +37,34 @@ public class ComplianceScoreServiceImpl implements ComplianceScoreService {
                 .orElseThrow(() -> new ResourceNotFoundException("Vendor not found"));
 
         List<VendorDocument> docs =
-                vendorDocumentRepository.findByVendor_Id(vendorId);
+                vendorDocumentRepository.findByVendor(vendor);
 
-
-        double baseScore = docs.isEmpty() ? 0 : 100;
-
-        if (baseScore < 0) {
-            throw new ValidationException("Compliance score cannot be negative");
-        }
+        double scoreValue = docs.isEmpty() ? 0 : 100;
 
         ComplianceScore score = complianceScoreRepository
-                .findByVendor_Id(vendorId)
+                .findByVendor(vendor)
                 .orElse(new ComplianceScore());
 
         score.setVendor(vendor);
-        score.setScoreValue(baseScore);
+        score.setScoreValue(scoreValue);
         score.setLastEvaluated(LocalDateTime.now());
-        score.setRating(baseScore == 100 ? "EXCELLENT" : "NONCOMPLIANT");
+        score.setRating(scoreValue == 100 ? "EXCELLENT" : "NONCOMPLIANT");
 
         return complianceScoreRepository.save(score);
     }
 
     @Override
     public ComplianceScore getScore(Long vendorId) {
-        return complianceScoreRepository
-                .findByVendor_Id(vendorId)
+
+        Vendor vendor = vendorRepository.findById(vendorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Vendor not found"));
+
+        return complianceScoreRepository.findByVendor(vendor)
                 .orElseThrow(() -> new ResourceNotFoundException("Score not found"));
     }
 
     @Override
-public ComplianceScore evaluateVendor(Long vendorId) {
-
-    Vendor vendor = vendorRepository.findById(vendorId)
-            .orElseThrow(() -> new ResourceNotFoundException("Vendor not found"));
-
-    // ✅ Correct repository usage
-    List<VendorDocument> docs = vendorDocumentRepository.findByVendor(vendor);
-
-    double scoreValue = docs.isEmpty() ? 0 : 100;
-
-    ComplianceScore score = complianceScoreRepository
-            .findByVendor(vendor)
-            .orElse(new ComplianceScore());
-
-    score.setVendor(vendor);
-    score.setScoreValue(scoreValue);
-    score.setLastEvaluated(LocalDateTime.now());
-    score.setRating(scoreValue == 100 ? "EXCELLENT" : "NON_COMPLIANT");
-
-    return complianceScoreRepository.save(score);
-}
-
+    public List<ComplianceScore> getAllScores() {
+        return complianceScoreRepository.findAll();
+    }
 }
