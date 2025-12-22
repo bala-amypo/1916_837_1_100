@@ -7,11 +7,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.time.LocalDate;
 import java.util.List;
 
-public interface VendorDocumentRepository extends JpaRepository<VendorDocument, Long> {
+public interface VendorDocumentRepository
+        extends JpaRepository<VendorDocument, Long> {
 
-    // ✔ Correct – matches entity field "vendor"
     List<VendorDocument> findByVendor(Vendor vendor);
 
-    // ✔ Correct – matches entity field "expiryDate"
-    List<VendorDocument> findByExpiryDateBefore(LocalDate date);
+    // REQUIRED BY TESTS (name EXACT)
+    List<VendorDocument> findExpiredDocuments(LocalDate date);
 }
