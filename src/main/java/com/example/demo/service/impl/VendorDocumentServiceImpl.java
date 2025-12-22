@@ -3,6 +3,7 @@ package com.example.demo.service.impl;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Vendor;
 import com.example.demo.model.VendorDocument;
+import com.example.demo.repository.DocumentTypeRepository;
 import com.example.demo.repository.VendorDocumentRepository;
 import com.example.demo.repository.VendorRepository;
 import com.example.demo.service.VendorDocumentService;
@@ -13,16 +14,19 @@ import java.util.List;
 @Service
 public class VendorDocumentServiceImpl implements VendorDocumentService {
 
-    private final VendorRepository vendorRepository;
     private final VendorDocumentRepository vendorDocumentRepository;
+    private final VendorRepository vendorRepository;
+    private final DocumentTypeRepository documentTypeRepository;
 
-    // ✅ EXACT constructor expected by the TEST
+    // ✅ EXACT constructor expected by VendorComplianceApplicationTests
     public VendorDocumentServiceImpl(
+            VendorDocumentRepository vendorDocumentRepository,
             VendorRepository vendorRepository,
-            VendorDocumentRepository vendorDocumentRepository
+            DocumentTypeRepository documentTypeRepository
     ) {
-        this.vendorRepository = vendorRepository;
         this.vendorDocumentRepository = vendorDocumentRepository;
+        this.vendorRepository = vendorRepository;
+        this.documentTypeRepository = documentTypeRepository;
     }
 
     @Override
