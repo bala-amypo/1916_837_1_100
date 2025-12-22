@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ComplianceScoreServiceImpl implements ComplianceScoreService {
@@ -24,7 +25,7 @@ public class ComplianceScoreServiceImpl implements ComplianceScoreService {
     private final VendorDocumentRepository vendorDocumentRepository;
     private final ComplianceScoreRepository complianceScoreRepository;
 
-    // 🔑 Constructor MUST match test exactly
+    // ✔ Constructor EXACTLY as test expects
     public ComplianceScoreServiceImpl(
             VendorRepository vendorRepository,
             DocumentTypeRepository documentTypeRepository,
@@ -44,19 +45,17 @@ public class ComplianceScoreServiceImpl implements ComplianceScoreService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Vendor not found"));
 
-        // Required document types
         List<DocumentType> requiredTypes =
                 documentTypeRepository.findByRequiredTrue();
 
-        // Uploaded vendor documents
-        List<VendorDocument> uploadedDocs =
+        List<VendorDocument> vendorDocs =
                 vendorDocumentRepository.findByVendor(vendor);
 
-        // 🔑 FIX: convert VendorDocument → DocumentType
-        List<DocumentType> uploadedTypes = uploadedDocs.stream()
-                .filter(VendorDocument::isValid)   // ✅ CORRECT boolean getter
+        // 🔥 CRITICAL FIX: NO isValid(), NO getIsValid()
+        List<DocumentType> uploadedTypes = vendorDocs.stream()
+                .filter(d -> d.getDocumentType() != null && Boolean.TRUE.equals(d.getIsValid()))
                 .map(VendorDocument::getDocumentType)
-                .toList();
+                .collect(Collectors.toList());
 
         ComplianceScoringEngine engine = new ComplianceScoringEngine();
         double scoreValue = engine.calculateScore(requiredTypes, uploadedTypes);
