@@ -42,8 +42,9 @@ public class UserServiceImpl implements UserService {
                         new ResourceNotFoundException("User not found"));
     }
 
+    // 🔑 METHOD NAME MUST MATCH INTERFACE
     @Override
-    public User getById(Long id) {
+    public User getUser(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("User not found"));
