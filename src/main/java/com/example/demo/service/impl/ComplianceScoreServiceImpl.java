@@ -5,33 +5,31 @@ import com.example.demo.exception.ValidationException;
 import com.example.demo.model.ComplianceScore;
 import com.example.demo.model.Vendor;
 import com.example.demo.model.VendorDocument;
-import com.example.demo.repository.ComplianceRuleRepository;
 import com.example.demo.repository.ComplianceScoreRepository;
 import com.example.demo.repository.VendorDocumentRepository;
 import com.example.demo.repository.VendorRepository;
 import com.example.demo.service.ComplianceScoreService;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class ComplianceScoreServiceImpl implements ComplianceScoreService {
 
-    private final ComplianceScoreRepository complianceScoreRepository;
     private final VendorRepository vendorRepository;
     private final VendorDocumentRepository vendorDocumentRepository;
-    private final ComplianceRuleRepository complianceRuleRepository;
+    private final ComplianceScoreRepository complianceScoreRepository;
 
+    // ✅ Constructor order matters for tests
     public ComplianceScoreServiceImpl(
-            ComplianceScoreRepository complianceScoreRepository,
             VendorRepository vendorRepository,
             VendorDocumentRepository vendorDocumentRepository,
-            ComplianceRuleRepository complianceRuleRepository
+            ComplianceScoreRepository complianceScoreRepository
     ) {
-        this.complianceScoreRepository = complianceScoreRepository;
         this.vendorRepository = vendorRepository;
         this.vendorDocumentRepository = vendorDocumentRepository;
-        this.complianceRuleRepository = complianceRuleRepository;
+        this.complianceScoreRepository = complianceScoreRepository;
     }
 
     @Override
@@ -40,7 +38,8 @@ public class ComplianceScoreServiceImpl implements ComplianceScoreService {
         Vendor vendor = vendorRepository.findById(vendorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Vendor not found"));
 
-        List<VendorDocument> docs = vendorDocumentRepository.findByVendorId(vendorId);
+        List<VendorDocument> docs =
+                vendorDocumentRepository.findByVendorId(vendorId);
 
         double baseScore = docs.isEmpty() ? 0 : 100;
 
@@ -48,21 +47,23 @@ public class ComplianceScoreServiceImpl implements ComplianceScoreService {
             throw new ValidationException("Compliance score cannot be negative");
         }
 
+        // ✅ FIX: correct repository method
         ComplianceScore score = complianceScoreRepository
-                .findByVendorId(vendorId)
+                .findByVendor_Id(vendorId)
                 .orElse(new ComplianceScore());
 
         score.setVendor(vendor);
         score.setScoreValue(baseScore);
         score.setLastEvaluated(LocalDateTime.now());
-        score.setRating(baseScore == 100 ? "EXCELLENT" : "NON_COMPLIANT");
+        score.setRating(baseScore == 100 ? "EXCELLENT" : "NONCOMPLIANT");
 
         return complianceScoreRepository.save(score);
     }
 
     @Override
     public ComplianceScore getScore(Long vendorId) {
-        return complianceScoreRepository.findByVendorId(vendorId)
+        return complianceScoreRepository
+                .findByVendor_Id(vendorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Score not found"));
     }
 

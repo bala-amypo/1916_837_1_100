@@ -8,5 +8,6 @@ import java.util.Optional;
 public interface ComplianceScoreRepository
         extends JpaRepository<ComplianceScore, Long> {
 
+    // ✅ CORRECT METHOD NAME
     Optional<ComplianceScore> findByVendor_Id(Long vendorId);
 }
