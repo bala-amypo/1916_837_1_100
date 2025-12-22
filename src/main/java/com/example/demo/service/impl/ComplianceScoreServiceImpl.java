@@ -43,7 +43,8 @@ public class ComplianceScoreServiceImpl implements ComplianceScoreService {
                 .orElseThrow(() -> new ResourceNotFoundException("Vendor not found"));
 
         List<VendorDocument> docs =
-                vendorDocumentRepository.findByVendorId(vendorId);
+                vendorDocumentRepository.findByVendor_Id(vendorId);
+
 
         double baseScore = docs.isEmpty() ? 0 : 100;
 

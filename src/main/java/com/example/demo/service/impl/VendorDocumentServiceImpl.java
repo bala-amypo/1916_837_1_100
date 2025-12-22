@@ -53,7 +53,8 @@ public class VendorDocumentServiceImpl implements VendorDocumentService {
 
     @Override
     public List<VendorDocument> getDocumentsForVendor(Long vendorId) {
-        return vendorDocumentRepository.findByVendorId(vendorId);
+        vendorDocumentRepository.findByVendor_Id(vendorId);
+
     }
 
     @Override
