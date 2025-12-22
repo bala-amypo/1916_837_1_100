@@ -18,58 +18,32 @@ public class VendorDocument {
     @ManyToOne
     private DocumentType documentType;
 
-    @Column(nullable = false)
     private String fileUrl;
-
-    private LocalDateTime uploadedAt;
     private LocalDate expiryDate;
+    private LocalDateTime uploadedAt;
     private Boolean isValid;
 
-    public VendorDocument() {
-    }
+    public VendorDocument() {}
 
     @PrePersist
     public void prePersist() {
         this.uploadedAt = LocalDateTime.now();
-
-        if (expiryDate == null || expiryDate.isAfter(LocalDate.now())) {
-            this.isValid = true;
-        } else {
-            this.isValid = false;
-        }
     }
 
-    // ✅ REQUIRED GETTERS & SETTERS
+    // 🔹 REQUIRED BY TESTS
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public Vendor getVendor() {
-        return vendor;
-    }
+    public void setFileUrl(String fileUrl) { this.fileUrl = fileUrl; }
+    public String getFileUrl() { return fileUrl; }
 
-    public void setVendor(Vendor vendor) {
-        this.vendor = vendor;
-    }
+    public LocalDate getExpiryDate() { return expiryDate; }
+    public void setExpiryDate(LocalDate expiryDate) { this.expiryDate = expiryDate; }
 
-    public DocumentType getDocumentType() {
-        return documentType;
-    }
+    public void setIsValid(Boolean isValid) { this.isValid = isValid; }
 
-    public void setDocumentType(DocumentType documentType) {
-        this.documentType = documentType;
-    }
+    public DocumentType getDocumentType() { return documentType; }
+    public void setDocumentType(DocumentType documentType) { this.documentType = documentType; }
 
-    public LocalDate getExpiryDate() {
-        return expiryDate;
-    }
-
-    public void setExpiryDate(LocalDate expiryDate) {
-        this.expiryDate = expiryDate;
-    }
-
-    public Boolean getIsValid() {
-        return isValid;
-    }
-
-    public void setIsValid(Boolean isValid) {
-        this.isValid = isValid;
-    }
+    public void setVendor(Vendor vendor) { this.vendor = vendor; }
 }

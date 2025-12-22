@@ -13,10 +13,7 @@ public class DocumentType {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
     private String typeName;
-
-    private String description;
     private Boolean required;
     private Integer weight;
 
@@ -25,34 +22,22 @@ public class DocumentType {
     @ManyToMany(mappedBy = "supportedDocumentTypes")
     private Set<Vendor> vendors = new HashSet<>();
 
-    public DocumentType() {
-    }
-
-    public DocumentType(String typeName, String description, Boolean required, Integer weight) {
-        this.typeName = typeName;
-        this.description = description;
-        this.required = required;
-        this.weight = weight;
-    }
+    public DocumentType() {}
 
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
     }
 
-    public Long getId() {
-        return id;
-    }
+    // 🔹 REQUIRED BY TESTS
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public String getTypeName() {
-        return typeName;
-    }
+    public Boolean getRequired() { return required; }
+    public void setRequired(Boolean required) { this.required = required; }
 
-    public Integer getWeight() {
-        return weight;
-    }
+    public Integer getWeight() { return weight; }
+    public void setWeight(Integer weight) { this.weight = weight; }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
+    public Set<Vendor> getVendors() { return vendors; }
 }
