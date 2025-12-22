@@ -28,13 +28,6 @@ public class VendorDocument {
     public VendorDocument() {
     }
 
-    public VendorDocument(Vendor vendor, DocumentType documentType, String fileUrl, LocalDate expiryDate) {
-        this.vendor = vendor;
-        this.documentType = documentType;
-        this.fileUrl = fileUrl;
-        this.expiryDate = expiryDate;
-    }
-
     @PrePersist
     public void prePersist() {
         this.uploadedAt = LocalDateTime.now();
@@ -46,11 +39,37 @@ public class VendorDocument {
         }
     }
 
-    public Long getId() {
-        return id;
+    // ✅ REQUIRED GETTERS & SETTERS
+
+    public Vendor getVendor() {
+        return vendor;
+    }
+
+    public void setVendor(Vendor vendor) {
+        this.vendor = vendor;
+    }
+
+    public DocumentType getDocumentType() {
+        return documentType;
+    }
+
+    public void setDocumentType(DocumentType documentType) {
+        this.documentType = documentType;
+    }
+
+    public LocalDate getExpiryDate() {
+        return expiryDate;
+    }
+
+    public void setExpiryDate(LocalDate expiryDate) {
+        this.expiryDate = expiryDate;
     }
 
     public Boolean getIsValid() {
         return isValid;
+    }
+
+    public void setIsValid(Boolean isValid) {
+        this.isValid = isValid;
     }
 }

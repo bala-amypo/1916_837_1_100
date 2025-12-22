@@ -14,17 +14,14 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // ✅ Constructor injection (order matters for tests)
     public UserServiceImpl(UserRepository userRepository,
                            PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
-    // ✅ REQUIRED by test case
     @Override
     public User registerUser(User user) {
-
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new ValidationException("Duplicate email");
         }
@@ -46,7 +43,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getById(Long id) {
+    public User getUser(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("User not found"));
