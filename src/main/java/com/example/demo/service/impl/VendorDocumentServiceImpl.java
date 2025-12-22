@@ -1,51 +1,61 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.exception.ResourceNotFoundException;
-import com.example.demo.model.User;
-import com.example.demo.repository.UserRepository;
-import com.example.demo.service.UserService;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import com.example.demo.model.DocumentType;
+import com.example.demo.model.Vendor;
+import com.example.demo.model.VendorDocument;
+import com.example.demo.repository.DocumentTypeRepository;
+import com.example.demo.repository.VendorDocumentRepository;
+import com.example.demo.repository.VendorRepository;
+import com.example.demo.service.VendorDocumentService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+
 @Service
-public class UserServiceImpl implements UserService {
+public class VendorDocumentServiceImpl implements VendorDocumentService {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final VendorDocumentRepository vendorDocumentRepository;
+    private final VendorRepository vendorRepository;
+    private final DocumentTypeRepository documentTypeRepository;
 
-    public UserServiceImpl(UserRepository userRepository,
-                           PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
+    public VendorDocumentServiceImpl(
+            VendorDocumentRepository vendorDocumentRepository,
+            VendorRepository vendorRepository,
+            DocumentTypeRepository documentTypeRepository
+    ) {
+        this.vendorDocumentRepository = vendorDocumentRepository;
+        this.vendorRepository = vendorRepository;
+        this.documentTypeRepository = documentTypeRepository;
     }
 
     @Override
-    public User registerUser(User user) {
+    public VendorDocument uploadDocument(Long vendorId, Long documentTypeId, VendorDocument doc) {
 
-        if (userRepository.existsByEmail(user.getEmail())) {
-            throw new IllegalArgumentException("Email already used");
+        Vendor vendor = vendorRepository.findById(vendorId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Vendor not found"));
+
+        DocumentType type = documentTypeRepository.findById(documentTypeId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("DocumentType not found"));
+
+        if (doc.getExpiryDate() != null &&
+                doc.getExpiryDate().isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("Expiry date cannot be in the past");
         }
 
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        doc.setVendor(vendor);
+        doc.setDocumentType(type);
+        doc.setIsValid(true);
 
-        if (user.getRole() == null) {
-            user.setRole("USER");
-        }
-
-        return userRepository.save(user);
+        return vendorDocumentRepository.save(doc);
     }
 
     @Override
-    public User findByEmail(String email) {
-        return userRepository.findByEmail(email)
+    public VendorDocument getDocument(Long id) {
+        return vendorDocumentRepository.findById(id)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found"));
-    }
-
-    @Override
-    public User getById(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found"));
+                        new ResourceNotFoundException("VendorDocument not found"));
     }
 }
