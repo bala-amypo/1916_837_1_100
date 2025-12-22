@@ -32,13 +32,18 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody RegisterRequest req) {
+
         User user = new User(
                 req.getFullName(),
                 req.getEmail(),
                 req.getPassword(),
                 "USER"
         );
-        return ResponseEntity.ok(userService.register(user));
+
+        // ✅ FIX: use registerUser (matches UserService)
+        User savedUser = userService.registerUser(user);
+
+        return ResponseEntity.ok(savedUser);
     }
 
     @PostMapping("/login")
@@ -46,7 +51,9 @@ public class AuthController {
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        req.getEmail(), req.getPassword())
+                        req.getEmail(),
+                        req.getPassword()
+                )
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
