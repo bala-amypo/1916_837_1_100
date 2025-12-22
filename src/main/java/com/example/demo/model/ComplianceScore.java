@@ -11,41 +11,55 @@ public class ComplianceScore {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    @ManyToOne
     private Vendor vendor;
 
     private double scoreValue;
 
-    private LocalDateTime lastEvaluated;
-
     private String rating;
+
+    private LocalDateTime lastEvaluated;
 
     public ComplianceScore() {}
 
-    // ✅ REQUIRED SETTERS (used by service)
+    // ======================
+    // REQUIRED GETTERS / SETTERS (TEST SAFE)
+    // ======================
+
+    public Long getId() {
+        return id;
+    }
+
+    public Vendor getVendor() {
+        return vendor;
+    }
 
     public void setVendor(Vendor vendor) {
         this.vendor = vendor;
+    }
+
+    public double getScoreValue() {
+        return scoreValue;
     }
 
     public void setScoreValue(double scoreValue) {
         this.scoreValue = scoreValue;
     }
 
-    public void setLastEvaluated(LocalDateTime lastEvaluated) {
-        this.lastEvaluated = lastEvaluated;
+    // 🔑 THIS IS WHAT THE TEST EXPECTS
+    public String getRating() {
+        return rating;
     }
 
     public void setRating(String rating) {
         this.rating = rating;
     }
 
-    // Optional getters
-    public Vendor getVendor() {
-        return vendor;
+    public LocalDateTime getLastEvaluated() {
+        return lastEvaluated;
     }
 
-    public double getScoreValue() {
-        return scoreValue;
+    public void setLastEvaluated(LocalDateTime lastEvaluated) {
+        this.lastEvaluated = lastEvaluated;
     }
 }
