@@ -48,4 +48,8 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("User not found"));
     }
+    public User getById(Long id) {
+    return getUser(id);
+}
+
 }

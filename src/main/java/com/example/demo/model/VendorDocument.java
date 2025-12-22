@@ -46,4 +46,12 @@ public class VendorDocument {
     public void setDocumentType(DocumentType documentType) { this.documentType = documentType; }
 
     public void setVendor(Vendor vendor) { this.vendor = vendor; }
+    public Vendor getVendor() {
+    return vendor;
+}
+
+public LocalDateTime getUploadedAt() {
+    return uploadedAt;
+}
+
 }

@@ -48,4 +48,8 @@ public class DocumentType {
     public void setWeight(Integer weight) { this.weight = weight; }
 
     public Set<Vendor> getVendors() { return vendors; }
+    public LocalDateTime getCreatedAt() {
+    return createdAt;
+}
+
 }
