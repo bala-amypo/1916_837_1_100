@@ -68,5 +68,12 @@ public List<VendorDocument> getDocumentsForVendor(Long vendorId) {
 
     return vendorDocumentRepository.findByVendor(vendor);
 }
+@Override
+public List<VendorDocument> getDocumentsForVendor(Long vendorId) {
+    Vendor vendor = vendorRepository.findById(vendorId)
+            .orElseThrow(() -> new ResourceNotFoundException("Vendor not found"));
+    return vendorDocumentRepository.findByVendor(vendor);
+}
+
 
 }
