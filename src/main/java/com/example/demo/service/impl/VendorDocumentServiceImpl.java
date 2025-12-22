@@ -9,6 +9,7 @@ import com.example.demo.repository.VendorDocumentRepository;
 import com.example.demo.repository.VendorRepository;
 import com.example.demo.service.VendorDocumentService;
 import org.springframework.stereotype.Service;
+import java.util.List;
 
 import java.time.LocalDate;
 
@@ -58,4 +59,14 @@ public class VendorDocumentServiceImpl implements VendorDocumentService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("VendorDocument not found"));
     }
+    @Override
+public List<VendorDocument> getDocumentsForVendor(Long vendorId) {
+
+    Vendor vendor = vendorRepository.findById(vendorId)
+            .orElseThrow(() ->
+                    new ResourceNotFoundException("Vendor not found"));
+
+    return vendorDocumentRepository.findByVendor(vendor);
+}
+
 }
