@@ -21,19 +21,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User registerUser(User user) {
-        if (userRepository.existsByEmail(user.getEmail())) {
-            throw new ValidationException("Duplicate email");
-        }
-
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-        if (user.getRole() == null) {
-            user.setRole("USER");
-        }
-
-        return userRepository.save(user);
+public User registerUser(User user) {
+    if (userRepository.existsByEmail(user.getEmail())) {
+        throw new IllegalArgumentException("Email already used");
     }
+
+    user.setPassword(passwordEncoder.encode(user.getPassword()));
+    if (user.getRole() == null) {
+        user.setRole("USER");
+    }
+    return userRepository.save(user);
+}
+
 
     @Override
     public User findByEmail(String email) {

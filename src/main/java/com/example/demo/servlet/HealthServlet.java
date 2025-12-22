@@ -6,16 +6,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.annotation.WebServlet;
 import java.io.IOException;
 
-@WebServlet("/health")
+@WebServlet(urlPatterns = "/health")
 public class HealthServlet extends HttpServlet {
 
-    public HealthServlet() {
-    }
-
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.getWriter().write("OK");
+        resp.getWriter().write("OK");
     }
 }
