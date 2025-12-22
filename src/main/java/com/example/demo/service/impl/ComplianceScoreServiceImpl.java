@@ -32,31 +32,38 @@ public class ComplianceScoreServiceImpl implements ComplianceScoreService {
     }
 
     @Override
-    public ComplianceScore evaluateVendor(Long vendorId) {
+public ComplianceScore evaluateVendor(Long vendorId) {
 
-        Vendor vendor = vendorRepository.findById(vendorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Vendor not found"));
+    Vendor vendor = vendorRepository.findById(vendorId)
+            .orElseThrow(() -> new ResourceNotFoundException("Vendor not found"));
 
-        List<DocumentType> requiredTypes =
-                documentTypeRepository.findByRequiredTrue();
+    List<DocumentType> requiredTypes =
+            documentTypeRepository.findByRequiredTrue();
 
-        List<VendorDocument> uploadedDocs =
-                vendorDocumentRepository.findByVendor(vendor);
+    List<VendorDocument> uploadedDocs =
+            vendorDocumentRepository.findByVendor(vendor);
 
-        ComplianceScoringEngine engine = new ComplianceScoringEngine();
-        double scoreValue = engine.calculateScore(requiredTypes, uploadedDocs);
+    // ✅ FIX: convert VendorDocument → DocumentType
+    List<DocumentType> uploadedTypes = uploadedDocs.stream()
+            .filter(VendorDocument::getIsValid)
+            .map(VendorDocument::getDocumentType)
+            .toList();
 
-        ComplianceScore score = complianceScoreRepository
-                .findByVendor_Id(vendorId)
-                .orElse(new ComplianceScore());
+    ComplianceScoringEngine engine = new ComplianceScoringEngine();
+    double scoreValue = engine.calculateScore(requiredTypes, uploadedTypes);
 
-        score.setVendor(vendor);
-        score.setScoreValue(scoreValue);
-        score.setLastEvaluated(LocalDateTime.now());
-        score.setRating(engine.deriveRating(scoreValue));
+    ComplianceScore score = complianceScoreRepository
+            .findByVendor_Id(vendorId)
+            .orElse(new ComplianceScore());
 
-        return complianceScoreRepository.save(score);
-    }
+    score.setVendor(vendor);
+    score.setScoreValue(scoreValue);
+    score.setLastEvaluated(LocalDateTime.now());
+    score.setRating(engine.deriveRating(scoreValue));
+
+    return complianceScoreRepository.save(score);
+}
+
 
     @Override
     public ComplianceScore getScore(Long vendorId) {
