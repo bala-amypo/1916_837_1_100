@@ -72,7 +72,26 @@ public class ComplianceScoreServiceImpl implements ComplianceScoreService {
     }
 
     @Override
-    public List<ComplianceScore> getAllScores() {
-        return complianceScoreRepository.findAll();
-    }
+public ComplianceScore evaluateVendor(Long vendorId) {
+
+    Vendor vendor = vendorRepository.findById(vendorId)
+            .orElseThrow(() -> new ResourceNotFoundException("Vendor not found"));
+
+    // ✅ Correct repository usage
+    List<VendorDocument> docs = vendorDocumentRepository.findByVendor(vendor);
+
+    double scoreValue = docs.isEmpty() ? 0 : 100;
+
+    ComplianceScore score = complianceScoreRepository
+            .findByVendor(vendor)
+            .orElse(new ComplianceScore());
+
+    score.setVendor(vendor);
+    score.setScoreValue(scoreValue);
+    score.setLastEvaluated(LocalDateTime.now());
+    score.setRating(scoreValue == 100 ? "EXCELLENT" : "NON_COMPLIANT");
+
+    return complianceScoreRepository.save(score);
+}
+
 }
