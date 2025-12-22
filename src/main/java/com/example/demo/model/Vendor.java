@@ -52,4 +52,11 @@ public class Vendor {
     public Set<DocumentType> getSupportedDocumentTypes() {
         return supportedDocumentTypes;
     }
+    public Vendor(String vendorName, String email, String phone, String industry) {
+    this.vendorName = vendorName;
+    this.email = email;
+    this.phone = phone;
+    this.industry = industry;
+}
+
 }

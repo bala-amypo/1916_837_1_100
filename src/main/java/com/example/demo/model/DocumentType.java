@@ -28,6 +28,14 @@ public class DocumentType {
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
     }
+    public String getTypeName() {
+    return typeName;
+}
+
+    public void setTypeName(String typeName) {
+    this.typeName = typeName;
+}
+
 
     // 🔹 REQUIRED BY TESTS
     public Long getId() { return id; }
