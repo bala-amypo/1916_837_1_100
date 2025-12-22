@@ -1,48 +1,14 @@
-package com.example.demo.service.impl;
+public User registerUser(User user) {
 
-import com.example.demo.exception.ValidationException;
-import com.example.demo.exception.ResourceNotFoundException;
-import com.example.demo.model.User;
-import com.example.demo.repository.UserRepository;
-import com.example.demo.service.UserService;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
-@Service
-public class UserServiceImpl implements UserService {
-
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-
-    public UserServiceImpl(
-            UserRepository userRepository,
-            PasswordEncoder passwordEncoder
-    ) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
+    if (userRepository.existsByEmail(user.getEmail())) {
+        throw new ValidationException("Duplicate email");
     }
 
-    @Override
-    public User register(User user) {
-        if (userRepository.existsByEmail(user.getEmail())) {
-            throw new ValidationException("Email already exists");
-        }
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+    user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+    if (user.getRole() == null) {
+        user.setRole("USER");
     }
 
-    @Override
-    public User findByEmail(String email) {
-        return userRepository.findAll()
-                .stream()
-                .filter(u -> u.getEmail().equals(email))
-                .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-    }
-
-    @Override
-    public User getUser(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-    }
+    return userRepository.save(user);
 }
