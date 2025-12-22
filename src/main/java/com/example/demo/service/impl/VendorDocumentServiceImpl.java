@@ -16,7 +16,7 @@ public class VendorDocumentServiceImpl implements VendorDocumentService {
     private final VendorRepository vendorRepository;
     private final VendorDocumentRepository vendorDocumentRepository;
 
-    // ✅ EXACT constructor expected by TEST
+    // ✅ EXACT constructor expected by the TEST
     public VendorDocumentServiceImpl(
             VendorRepository vendorRepository,
             VendorDocumentRepository vendorDocumentRepository
@@ -39,11 +39,10 @@ public class VendorDocumentServiceImpl implements VendorDocumentService {
     @Override
     public List<VendorDocument> getDocumentsForVendor(Long vendorId) {
 
-        if (!vendorRepository.existsById(vendorId)) {
-            throw new ResourceNotFoundException("Vendor not found");
-        }
+        Vendor vendor = vendorRepository.findById(vendorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Vendor not found"));
 
-        return vendorDocumentRepository.findByVendor(vendorRepository.findById(vendorId).get());
+        return vendorDocumentRepository.findByVendor(vendor);
     }
 
     @Override
