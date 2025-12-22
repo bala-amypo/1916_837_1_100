@@ -9,9 +9,9 @@ import com.example.demo.repository.VendorDocumentRepository;
 import com.example.demo.repository.VendorRepository;
 import com.example.demo.service.VendorDocumentService;
 import org.springframework.stereotype.Service;
-import java.util.List;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 public class VendorDocumentServiceImpl implements VendorDocumentService {
@@ -20,18 +20,18 @@ public class VendorDocumentServiceImpl implements VendorDocumentService {
     private final VendorRepository vendorRepository;
     private final DocumentTypeRepository documentTypeRepository;
 
-    public VendorDocumentServiceImpl(
-            VendorDocumentRepository vendorDocumentRepository,
-            VendorRepository vendorRepository,
-            DocumentTypeRepository documentTypeRepository
-    ) {
+    public VendorDocumentServiceImpl(VendorDocumentRepository vendorDocumentRepository,
+                                     VendorRepository vendorRepository,
+                                     DocumentTypeRepository documentTypeRepository) {
         this.vendorDocumentRepository = vendorDocumentRepository;
         this.vendorRepository = vendorRepository;
         this.documentTypeRepository = documentTypeRepository;
     }
 
     @Override
-    public VendorDocument uploadDocument(Long vendorId, Long documentTypeId, VendorDocument doc) {
+    public VendorDocument uploadDocument(Long vendorId,
+                                         Long documentTypeId,
+                                         VendorDocument doc) {
 
         Vendor vendor = vendorRepository.findById(vendorId)
                 .orElseThrow(() ->
@@ -59,21 +59,14 @@ public class VendorDocumentServiceImpl implements VendorDocumentService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("VendorDocument not found"));
     }
+
     @Override
-public List<VendorDocument> getDocumentsForVendor(Long vendorId) {
+    public List<VendorDocument> getDocumentsForVendor(Long vendorId) {
 
-    Vendor vendor = vendorRepository.findById(vendorId)
-            .orElseThrow(() ->
-                    new ResourceNotFoundException("Vendor not found"));
+        Vendor vendor = vendorRepository.findById(vendorId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Vendor not found"));
 
-    return vendorDocumentRepository.findByVendor(vendor);
-}
-@Override
-public List<VendorDocument> getDocumentsForVendor(Long vendorId) {
-    Vendor vendor = vendorRepository.findById(vendorId)
-            .orElseThrow(() -> new ResourceNotFoundException("Vendor not found"));
-    return vendorDocumentRepository.findByVendor(vendor);
-}
-
-
+        return vendorDocumentRepository.findByVendor(vendor);
+    }
 }
