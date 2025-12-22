@@ -1,8 +1,14 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.exception.ResourceNotFoundException;
-import com.example.demo.model.*;
-import com.example.demo.repository.*;
+import com.example.demo.model.ComplianceScore;
+import com.example.demo.model.DocumentType;
+import com.example.demo.model.Vendor;
+import com.example.demo.model.VendorDocument;
+import com.example.demo.repository.ComplianceScoreRepository;
+import com.example.demo.repository.DocumentTypeRepository;
+import com.example.demo.repository.VendorDocumentRepository;
+import com.example.demo.repository.VendorRepository;
 import com.example.demo.service.ComplianceScoreService;
 import com.example.demo.util.ComplianceScoringEngine;
 import org.springframework.stereotype.Service;
@@ -18,7 +24,7 @@ public class ComplianceScoreServiceImpl implements ComplianceScoreService {
     private final VendorDocumentRepository vendorDocumentRepository;
     private final ComplianceScoreRepository complianceScoreRepository;
 
-    // MUST MATCH TEST CONSTRUCTOR
+    // 🔑 Constructor MUST match test exactly
     public ComplianceScoreServiceImpl(
             VendorRepository vendorRepository,
             DocumentTypeRepository documentTypeRepository,
@@ -32,43 +38,46 @@ public class ComplianceScoreServiceImpl implements ComplianceScoreService {
     }
 
     @Override
-public ComplianceScore evaluateVendor(Long vendorId) {
+    public ComplianceScore evaluateVendor(Long vendorId) {
 
-    Vendor vendor = vendorRepository.findById(vendorId)
-            .orElseThrow(() -> new ResourceNotFoundException("Vendor not found"));
+        Vendor vendor = vendorRepository.findById(vendorId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Vendor not found"));
 
-    List<DocumentType> requiredTypes =
-            documentTypeRepository.findByRequiredTrue();
+        // Required document types
+        List<DocumentType> requiredTypes =
+                documentTypeRepository.findByRequiredTrue();
 
-    List<VendorDocument> uploadedDocs =
-            vendorDocumentRepository.findByVendor(vendor);
+        // Uploaded vendor documents
+        List<VendorDocument> uploadedDocs =
+                vendorDocumentRepository.findByVendor(vendor);
 
-    // ✅ FIX: convert VendorDocument → DocumentType
-    List<DocumentType> uploadedTypes = uploadedDocs.stream()
-            .filter(VendorDocument::getIsValid)
-            .map(VendorDocument::getDocumentType)
-            .toList();
+        // 🔑 FIX: convert VendorDocument → DocumentType
+        List<DocumentType> uploadedTypes = uploadedDocs.stream()
+                .filter(VendorDocument::isValid)   // ✅ CORRECT boolean getter
+                .map(VendorDocument::getDocumentType)
+                .toList();
 
-    ComplianceScoringEngine engine = new ComplianceScoringEngine();
-    double scoreValue = engine.calculateScore(requiredTypes, uploadedTypes);
+        ComplianceScoringEngine engine = new ComplianceScoringEngine();
+        double scoreValue = engine.calculateScore(requiredTypes, uploadedTypes);
 
-    ComplianceScore score = complianceScoreRepository
-            .findByVendor_Id(vendorId)
-            .orElse(new ComplianceScore());
+        ComplianceScore score = complianceScoreRepository
+                .findByVendor_Id(vendorId)
+                .orElse(new ComplianceScore());
 
-    score.setVendor(vendor);
-    score.setScoreValue(scoreValue);
-    score.setLastEvaluated(LocalDateTime.now());
-    score.setRating(engine.deriveRating(scoreValue));
+        score.setVendor(vendor);
+        score.setScoreValue(scoreValue);
+        score.setLastEvaluated(LocalDateTime.now());
+        score.setRating(engine.deriveRating(scoreValue));
 
-    return complianceScoreRepository.save(score);
-}
-
+        return complianceScoreRepository.save(score);
+    }
 
     @Override
     public ComplianceScore getScore(Long vendorId) {
         return complianceScoreRepository.findByVendor_Id(vendorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Score not found"));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Score not found"));
     }
 
     @Override
