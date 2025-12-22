@@ -6,6 +6,7 @@ import com.example.demo.model.ComplianceScore;
 import com.example.demo.model.Vendor;
 import com.example.demo.model.VendorDocument;
 import com.example.demo.repository.ComplianceScoreRepository;
+import com.example.demo.repository.DocumentTypeRepository;
 import com.example.demo.repository.VendorDocumentRepository;
 import com.example.demo.repository.VendorRepository;
 import com.example.demo.service.ComplianceScoreService;
@@ -18,16 +19,19 @@ import java.util.List;
 public class ComplianceScoreServiceImpl implements ComplianceScoreService {
 
     private final VendorRepository vendorRepository;
+    private final DocumentTypeRepository documentTypeRepository; // required by test
     private final VendorDocumentRepository vendorDocumentRepository;
     private final ComplianceScoreRepository complianceScoreRepository;
 
-    // ✅ Constructor order matters for tests
+    // ✅ EXACT constructor expected by test
     public ComplianceScoreServiceImpl(
             VendorRepository vendorRepository,
+            DocumentTypeRepository documentTypeRepository,
             VendorDocumentRepository vendorDocumentRepository,
             ComplianceScoreRepository complianceScoreRepository
     ) {
         this.vendorRepository = vendorRepository;
+        this.documentTypeRepository = documentTypeRepository;
         this.vendorDocumentRepository = vendorDocumentRepository;
         this.complianceScoreRepository = complianceScoreRepository;
     }
@@ -47,7 +51,6 @@ public class ComplianceScoreServiceImpl implements ComplianceScoreService {
             throw new ValidationException("Compliance score cannot be negative");
         }
 
-        // ✅ FIX: correct repository method
         ComplianceScore score = complianceScoreRepository
                 .findByVendor_Id(vendorId)
                 .orElse(new ComplianceScore());
