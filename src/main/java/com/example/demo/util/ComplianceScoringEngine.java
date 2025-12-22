@@ -6,34 +6,23 @@ import java.util.List;
 
 public class ComplianceScoringEngine {
 
-    // ✅ REQUIRED BY TESTS
-    public static double calculateScore(
+    public double calculateScore(
             List<DocumentType> required,
-            List<DocumentType> available
-    ) {
-        if (required == null || required.isEmpty()) {
-            return 0.0;
-        }
+            List<DocumentType> provided) {
 
-        int matched = 0;
+        if (required.isEmpty()) return 100.0;
 
-        for (DocumentType req : required) {
-            for (DocumentType av : available) {
-                if (req.getId().equals(av.getId())) {
-                    matched++;
-                    break;
-                }
-            }
-        }
+        long matched = required.stream()
+                .filter(provided::contains)
+                .count();
 
-        return ((double) matched / required.size()) * 100;
+        return (matched * 100.0) / required.size();
     }
 
-    // ✅ REQUIRED BY SERVICES
-    public static String deriveRating(double score) {
-        if (score >= 80) return "EXCELLENT";
-        if (score >= 60) return "GOOD";
-        if (score >= 40) return "POOR";
-        return "NONCOMPLIANT";
+    public String deriveRating(double score) {
+        if (score >= 90) return "EXCELLENT";
+        if (score >= 75) return "GOOD";
+        if (score >= 50) return "POOR";
+        return "NON_COMPLIANT";
     }
 }

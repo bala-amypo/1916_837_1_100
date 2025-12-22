@@ -1,21 +1,14 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.exception.ResourceNotFoundException;
-import com.example.demo.model.ComplianceScore;
-import com.example.demo.model.DocumentType;
-import com.example.demo.model.Vendor;
-import com.example.demo.model.VendorDocument;
-import com.example.demo.repository.ComplianceScoreRepository;
-import com.example.demo.repository.DocumentTypeRepository;
-import com.example.demo.repository.VendorDocumentRepository;
-import com.example.demo.repository.VendorRepository;
+import com.example.demo.model.*;
+import com.example.demo.repository.*;
 import com.example.demo.service.ComplianceScoreService;
 import com.example.demo.util.ComplianceScoringEngine;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ComplianceScoreServiceImpl implements ComplianceScoreService {
@@ -25,13 +18,15 @@ public class ComplianceScoreServiceImpl implements ComplianceScoreService {
     private final VendorDocumentRepository vendorDocumentRepository;
     private final ComplianceScoreRepository complianceScoreRepository;
 
-    // ✔ Constructor EXACTLY as test expects
+    private final ComplianceScoringEngine scoringEngine =
+            new ComplianceScoringEngine();
+
     public ComplianceScoreServiceImpl(
             VendorRepository vendorRepository,
             DocumentTypeRepository documentTypeRepository,
             VendorDocumentRepository vendorDocumentRepository,
-            ComplianceScoreRepository complianceScoreRepository
-    ) {
+            ComplianceScoreRepository complianceScoreRepository) {
+
         this.vendorRepository = vendorRepository;
         this.documentTypeRepository = documentTypeRepository;
         this.vendorDocumentRepository = vendorDocumentRepository;
@@ -48,26 +43,31 @@ public class ComplianceScoreServiceImpl implements ComplianceScoreService {
         List<DocumentType> requiredTypes =
                 documentTypeRepository.findByRequiredTrue();
 
-        List<VendorDocument> vendorDocs =
+        List<VendorDocument> docs =
                 vendorDocumentRepository.findByVendor(vendor);
 
-        // 🔥 CRITICAL FIX: NO isValid(), NO getIsValid()
-        List<DocumentType> uploadedTypes = vendorDocs.stream()
-                .filter(d -> d.getDocumentType() != null && Boolean.TRUE.equals(d.getIsValid()))
+        List<DocumentType> validTypes = docs.stream()
+                .filter(VendorDocument::getIsValid)
                 .map(VendorDocument::getDocumentType)
-                .collect(Collectors.toList());
+                .toList();
 
-        ComplianceScoringEngine engine = new ComplianceScoringEngine();
-        double scoreValue = engine.calculateScore(requiredTypes, uploadedTypes);
+        double scoreValue;
 
-        ComplianceScore score = complianceScoreRepository
-                .findByVendor_Id(vendorId)
-                .orElse(new ComplianceScore());
+        if (requiredTypes.isEmpty()) {
+            scoreValue = 100.0;
+        } else {
+            scoreValue = scoringEngine.calculateScore(
+                    requiredTypes, validTypes);
+        }
+
+        ComplianceScore score =
+                complianceScoreRepository.findByVendor_Id(vendorId)
+                        .orElse(new ComplianceScore());
 
         score.setVendor(vendor);
         score.setScoreValue(scoreValue);
+        score.setRating(scoringEngine.deriveRating(scoreValue));
         score.setLastEvaluated(LocalDateTime.now());
-        score.setRating(engine.deriveRating(scoreValue));
 
         return complianceScoreRepository.save(score);
     }

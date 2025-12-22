@@ -1,58 +1,51 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.exception.ResourceNotFoundException;
-import com.example.demo.model.Vendor;
-import com.example.demo.model.VendorDocument;
-import com.example.demo.repository.DocumentTypeRepository;
-import com.example.demo.repository.VendorDocumentRepository;
-import com.example.demo.repository.VendorRepository;
-import com.example.demo.service.VendorDocumentService;
+import com.example.demo.model.User;
+import com.example.demo.repository.UserRepository;
+import com.example.demo.service.UserService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
-public class VendorDocumentServiceImpl implements VendorDocumentService {
+public class UserServiceImpl implements UserService {
 
-    private final VendorDocumentRepository vendorDocumentRepository;
-    private final VendorRepository vendorRepository;
-    private final DocumentTypeRepository documentTypeRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    // ✅ EXACT constructor expected by VendorComplianceApplicationTests
-    public VendorDocumentServiceImpl(
-            VendorDocumentRepository vendorDocumentRepository,
-            VendorRepository vendorRepository,
-            DocumentTypeRepository documentTypeRepository
-    ) {
-        this.vendorDocumentRepository = vendorDocumentRepository;
-        this.vendorRepository = vendorRepository;
-        this.documentTypeRepository = documentTypeRepository;
+    public UserServiceImpl(UserRepository userRepository,
+                           PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    public VendorDocument uploadDocument(Long vendorId, Long documentTypeId, VendorDocument document) {
+    public User registerUser(User user) {
 
-        Vendor vendor = vendorRepository.findById(vendorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Vendor not found"));
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new IllegalArgumentException("Email already used");
+        }
 
-        document.setVendor(vendor);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        return vendorDocumentRepository.save(document);
+        if (user.getRole() == null) {
+            user.setRole("USER");
+        }
+
+        return userRepository.save(user);
     }
 
     @Override
-    public List<VendorDocument> getDocumentsForVendor(Long vendorId) {
-
-        Vendor vendor = vendorRepository.findById(vendorId)
-                .orElseThrow(() -> new ResourceNotFoundException("Vendor not found"));
-
-        return vendorDocumentRepository.findByVendor(vendor);
-    }
-
-    @Override
-    public VendorDocument getDocument(Long id) {
-        return vendorDocumentRepository.findById(id)
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Vendor document not found"));
+                        new ResourceNotFoundException("User not found"));
+    }
+
+    @Override
+    public User getById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
     }
 }
